@@ -38,6 +38,7 @@ end
 
 function ILvlFrame:intializeItemLevelInspection()
 
+	
 	if InspectFrame and InspectFrame.unit then 
 		local UnitIlevel = 0
 		if not InspectCache[InspectGUID] or InspectCache[InspectGUID].time > 800 then
