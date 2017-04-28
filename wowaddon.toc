@@ -1,6 +1,0 @@
-## Interface: 70100
-## Title : My AddOn
-## Version: 1.0.2
-## Author: Mariyan
-
-Itemlvl.lua
