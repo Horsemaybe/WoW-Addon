@@ -1,0 +1,6 @@
+## Interface: 70200
+## Title: ItemLevel
+## Notes: Displays the average item level of a player in their tooltip
+## Author: Mariyan
+
+Ilvl.lua
