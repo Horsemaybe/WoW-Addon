@@ -1,9 +1,8 @@
 local addonName, addon = ...
 local E = addon:Eve()
 
-local CACHE_TIMEOUT = 5 -- seconds to keep stale information before issuing a new inspect
+local CACHE_TIMEOUT = 5 -- seconds before a new inspect
 
-local print = function() end -- lazy debug print
 local GuidCache = {} -- [guid] = {ilevel, specName, timestamp}
 local ActiveGUID -- unit passed to NotifyInspect before INSPECT_READY fires
 local ScannedGUID -- actually-inspected unit from INSPECT_READY
@@ -306,7 +305,6 @@ f:SetScript('OnUpdate', function(self, elapsed)
 				end
 			end
 		end
-		-- todo: handle the tooltip being visible with no attempt at inspecting the unit
 	end
 end)
 
@@ -447,4 +445,4 @@ GameTooltip:HookScript('OnTooltipSetUnit', function(self) -- this fires before t
 			DoInspect()
 		end
 	end
-end)
+end
