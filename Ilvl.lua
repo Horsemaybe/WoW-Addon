@@ -29,7 +29,7 @@ local function GetUnitIDFromGUID(guid)
 				break
 			end
 		end
-	else -- scan every group member's target (this is probably overkill)
+	else -- scan every group member's targe
 		local numMembers = GetNumGroupMembers()
 		if numMembers > 0 then
 			local unitPrefix = IsInRaid() and 'raid' or 'party'
@@ -43,7 +43,6 @@ local function GetUnitIDFromGUID(guid)
 			end
 		end
 	end
-	-- no convenient unit ID is available, we tried
 	return nil, name
 end
 
@@ -89,16 +88,16 @@ local TwoHanders = {
 
 local InventorySlots = {}
 for i = 1, 17 do
-	if i ~= 4 then -- ignore shirt, tabard is 19
+	if i ~= 4 then -- ignore shirt tabard is 19
 		tinsert(InventorySlots, i)
 	end
 end
 
 local function IsArtifact(itemLink)
-	return itemLink:find('|cffe6cc80') -- this is probably a horrible way to find whether it's an artifact
+	return itemLink:find('|cffe6cc80') -- a horrible way to find whether it's an artifact
 end
 
-local function IsCached(itemLink) -- we can't get the correct level of an artifact until all of its relics have been cached
+local function IsCached(itemLink) -- can't get the correct level of an artifact until all of its relics have been cached
 	local cached = true
 	local _, itemID, _, relic1, relic2, relic3 = strsplit(':', itemLink)
 	if not GetDetailedItemLevelInfo(itemID) then cached = false end
@@ -137,10 +136,7 @@ local function AddLine(leftText, rightText, r1, g1, b1, r2, g2, b2, dontShow)
 		if not dontShow or GameTooltip:IsShown() then
 			GameTooltip:AddDoubleLine(leftText, rightText, r1, g1, b1, r2, g2, b2)
 			GameTooltip:Show()
-		--else
-		--	print('tooltip hidden!')
 		end
-	--end
 end
 
 -- OnTooltipSetUnit: NotifyInspect(unit)
@@ -160,14 +156,9 @@ for i, slot in pairs(InventorySlots) do
 		local slot = self.slot
 		local _, itemLink = self:GetItem()
 		local tipName = self:GetName()
-		--print('OnTooltipSetItem', itemLink, slot)
 		if slot == 16 and (_ == '' or not _) and self.itemLink then -- bug with main hand dual weapons not reporting any item link
-			--print("wtf", itemLink, self.itemLink)
 			itemLink = self.itemLink
 		end
-		--if itemLink then
-		--	local isCached = IsCached(itemLink)
-		--	if isCached then
 				for i = 2, self:NumLines() do
 					local str = _G[tipName .. 'TextLeft' .. i]
 					local text = str and str:GetText()
@@ -182,8 +173,6 @@ for i, slot in pairs(InventorySlots) do
 						end
 					end
 				end
-		--	end
-		--end
 		
 		local finished = true
 		local totalItemLevel = 0
@@ -231,7 +220,7 @@ for i, slot in pairs(InventorySlots) do
 				else
 					totalItemLevel = totalItemLevel + ilevelMain
 				end
-			elseif SlotCache[17] then -- off hand only?
+			elseif SlotCache[17] then -- off hand only
 				local ilevelOff = SlotCache[17]
 				totalItemLevel = totalItemLevel + ilevelOff
 				weaponLevel = ilevelOff
@@ -240,13 +229,11 @@ for i, slot in pairs(InventorySlots) do
 			
 			local averageItemLevel = totalItemLevel / 16
 			
-			-- should we just return the cache for this GUID?
 			local guid = ScannedGUID
 			if not GuidCache[guid] then GuidCache[guid] = {} end
-			--GuidCache[guid].specName = specName
+
 			GuidCache[guid].ilevel = averageItemLevel
 			GuidCache[guid].weaponLevel = weaponLevel
-			--GuidCache[guid].levelText = levelText
 			GuidCache[guid].timestamp = GetTime()
 			
 			E('ITEM_SCAN_COMPLETE', guid, GuidCache[guid])
@@ -276,7 +263,7 @@ f:SetScript('OnUpdate', function(self, elapsed)
 	if ShouldInspect and (ActiveGUID == guid or (timeSince >= INSPECT_TIMEOUT)) then
 		ShouldInspect = false
 		-- inspect whoever's in the tooltip and set to a unit we can inspect
-		if ActiveGUID ~= guid then -- todo: make sure this isn't going to be a problem
+		if ActiveGUID ~= guid then 
 			local cache = GuidCache[guid]
 			if cache and GetTime() - cache.timestamp <= CACHE_TIMEOUT then -- rescan only if enough time has elapsed
 				print('Still cached')
@@ -356,7 +343,6 @@ local function DecorateTooltip(guid)
 		
 		AddLine(cache.specName or STAT_AVERAGE_ITEM_LEVEL, levelText, 1, 1, 0, r1, g1, b1)
 		
-		--AddLine(STAT_AVERAGE_ITEM_LEVEL, cache.ilevel, 1, 1, 0, 1, 1, 1, true)
 	else
 		print('tooltip GUID does not match expected guid')
 	end
@@ -378,8 +364,6 @@ local function ScanUnit(unitID)
 	
 	if numEquipped > 0 then
 		for slot in pairs(SlotCache) do
-			-- TestTips[slot].itemLink = GetInventoryItemLink(unitID, slot)
-			--print('GetInveotryItemLink', TestTips[slot].itemLink, slot)
 			TestTips[slot]:SetOwner(WorldFrame, 'ANCHOR_NONE')
 			TestTips[slot]:SetInventoryItem(unitID, slot)
 		end
@@ -419,14 +403,11 @@ function E:INSPECT_READY(guid)
 		cache.specName = specName
 		
 		ScanUnit(unitID)
-	--else
-	--	print(format('No unit ID available to inspect %s', name))
 	end
 end
 
 function E:ITEM_SCAN_COMPLETE(guid, cache)
 	print('ITEM_SCAN_COMPLETE', guid, cache)
-	--AddLine(STAT_AVERAGE_ITEM_LEVEL, cache.ilevel, 1, 1, 0, 1, 1, 1, true)
 	DecorateTooltip(guid)
 end
 
@@ -438,7 +419,6 @@ GameTooltip:HookScript('OnTooltipSetUnit', function(self) -- this fires before t
 		local cache = GuidCache[guid]
 		if cache then
 			-- fill tooltip with cached data, but initiate a new scan anyway to update it
-			--AddLine(STAT_AVERAGE_ITEM_LEVEL, '???', 1, 0, 0, 1, 0, 0)
 			DecorateTooltip(guid)
 		end
 		if CanInspect(unitID) then
