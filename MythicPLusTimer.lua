@@ -27,7 +27,6 @@ function MythicPlusTimerCMTimer:Init()
     MythicPlusTimerCMTimer.reset = false;
     MythicPlusTimerCMTimer.frames = {};
     MythicPlusTimerCMTimer.timerStarted = false;
-
     
     MythicPlusTimerCMTimer.frame = CreateFrame("Frame", "CmTimer", UIParent);
     MythicPlusTimerCMTimer.frame:SetPoint(MythicPlusTimerDB.pos.relativePoint,MythicPlusTimerDB.pos.left,MythicPlusTimerDB.pos.top)
